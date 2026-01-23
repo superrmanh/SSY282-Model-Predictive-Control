@@ -1,0 +1,272 @@
+\documentclass[12pt]{article} 
+\usepackage{geometry} 
+\geometry{a4paper} 
+\linespread{1.1} % Line spacing
+
+
+% FIGURES AND FLOATS
+\usepackage{graphicx} % Required for including pictures
+\usepackage{float} % Allows putting an [H] in \begin{figure} to specify the exact location of the figure
+\usepackage{wrapfig} % Allows in-line images such as the example fish picture
+\usepackage[font={small,it}]{caption}
+\usepackage{subcaption}
+\usepackage{epstopdf}
+\graphicspath{{images/}}
+
+% MATH
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+% OTHER
+\usepackage[]{mcode}
+\usepackage{color}
+\usepackage{enumerate}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{\LARGE SSY282 Model Predictive Control \\  \vspace{1cm}\Large Assignment X \vspace{2cm}}
+\author{Group number XX}
+\date{\vspace{2cm}\today}
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     Mark this section as comment to exclude it in your report!
+\section*{About this template}
+\thispagestyle{empty}
+This template, originally preapred by Robert Hult for the course \textit{Modelling and Simulation}, can be a starting point for the reports written for hand-in assignments. The template contains some examples on how to import pictures, make lists, etc. and some examples on equations. The template is incomplete in this regard, and you should consult a {\LaTeX}  manual for more options.
+
+\emph{Note:} If you haven't used {\LaTeX}  before, there is a multitude of ``getting started" guides on the internet, and several different editors (for instance, LyX, TeXmaker and TeXShop), as well as online tools such as Overleaf. Starting to use Latex  is usually associated with a somewhat steep learning curve, but it is worth the effort! The result is usually much better looking than ``WYSIWYG"-editors like \emph{Word}, and mathematical expressions in particular is much easier to handle. On top of this, you will most likely write your Thesis in {\LaTeX}, so there is every reason to get started now! When you start: Are you getting errors? Google is your friend! 
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+Write a small introduction to the problem, but keep it concise.
+
+Thereafter, you will provide your answers to the questions, including any figures needed. Remember ...
+\begin{itemize}
+\item to supply answers to the questions asked;
+\item that we need to be able to understand your line of reasoning and your motivations;
+\item to define all symbols that you introduce;
+\item to refer clearly to equations, figures and diagrams.
+\end{itemize}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setcounter{page}{1}
+\section*{Question 1}
+\begin{enumerate}[(a)]
+\item
+%
+\item
+%
+\item
+%
+\item
+\end{enumerate}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Question 2}
+\begin{enumerate}[(a)]
+\item 
+%
+\item
+%
+\item
+\end{enumerate}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Question 3}
+\begin{enumerate}[(a)]
+\item 
+%
+\item
+%
+\item
+%
+\item
+\end{enumerate}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\end{document}		% Remove %-sign to finish your report here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\begin{center}
+{\huge Useful Examples}
+\end{center}
+\section{Section}
+
+\subsection{Subsection}
+\subsubsection{Sub-Subsection}
+\paragraph{Paragraph}
+
+\section{Writing math}
+This is how you write an equation
+\begin{equation}\label{eq:eq1}
+x(k+1) = rx(k)(1-x(k)).
+\end{equation}
+Alternatively, if you want to write the same equation ``inline", you write it like this $x(k+1) = rx(k)(1-x(k))$. 
+If you want to refer to the equation you do it like this \eqref{eq:eq1}. The use of ``eq:" in the labeling of equations (and other things) allows you do group your references and access them more easy.
+If you want to list several equations in a nice way you can do it like this
+\begin{align}
+x(k+1) 	     & = x(k) + K \text{cos}(\varphi(k)) \\
+\varphi(k+1) & = \varphi(k) + x(k).
+\end{align}
+If you want to break up a long equation you can do it like this
+\begin{align} 
+\begin{split}
+(x+y)^3 	&= (x+y)^2(x+y)\\
+&=(x^2+2xy+y^2)(x+y)\\
+&=(x^3+2x^2y+xy^2) + (x^2y+2xy^2+y^3)\\
+&=x^3+3x^2y+3xy^2+y^3
+\end{split}					
+\end{align}
+An optimization problem can be written in the following way
+\begin{subequations}\label{eq:subeq}
+\begin{align}
+\underset{x}{\min}	&\quad f(x) \\
+\text{s.t.}				&\quad h(x) \leq 0 \label{eq:con1}\\
+								&\quad g(x) = 0 \label{eq:con2}
+\end{align}
+\end{subequations}
+When using subequations you can either refer to all of the equations like this \eqref{eq:subeq}, or to individual sub-equations like this \eqref{eq:con1}, \eqref{eq:con2}. 
+
+If you want to write matrices you can write 
+\begin{equation}
+\underbrace{
+	\begin{bmatrix}
+		a_{11} & a_{12}\\
+		a_{21} & a_{22}
+	\end{bmatrix}
+	}_{A}
+\begin{bmatrix}
+x_1 \\
+x_2
+\end{bmatrix}
+=
+\begin{bmatrix}
+b_1 \\
+b_2
+\end{bmatrix}
+\end{equation}
+As in the other cases, \& demarcates columns and $\backslash\backslash$ demarcates rows.
+
+Larger parenthesis can be written as
+\begin{equation}
+x(t) = \left\{ \left( \sum_{k=0}^\infty \frac{t^k}{k!}A^k\right)x_0 \right\}
+\end{equation}
+The following can also be useful $\leq \  \geq \ \bar{x} \ \hat{x} \ \dot{x} \ \ddot{x} \ \tilde{x}$, as can this
+\begin{equation}
+\int_{-\infty}^{\infty}f(x)\mathrm{d}x, \ \frac{\partial f(x)}{\partial x}, \ \frac{\mathrm{d}f(x)}{\mathrm{d}x} \ \nabla_x f(x)
+\end{equation}
+\section{Figures}
+A figure can be included like this
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.7]{stdmap.png}
+\caption{ A figure with caption}
+\label{fig:fig1}
+\end{center}
+\end{figure}
+and can be referenced like this Figure \ref{fig:fig1}. 
+
+Figures side by side can be done like this and can be referred to either like this Figure \ref{fig:sub1} and Figure \ref{fig:sub2}, or like this Figure \ref{fig:both}.
+\begin{figure}[h]
+\centering
+\begin{subfigure}{.5\linewidth}
+  \centering
+  \includegraphics[width=1\linewidth]{lorenz.jpg}
+  \caption{A subfigure}
+  \label{fig:sub1}
+\end{subfigure}%
+\begin{subfigure}{.5\linewidth}
+  \centering
+  \includegraphics[width=1\linewidth]{bifurcation.png}
+  \caption{A subfigure}
+  \label{fig:sub2}
+\end{subfigure}
+\caption{A figure with two sub-figures}
+\label{fig:both}
+\end{figure}
+Latex can ``optimize" the positioning of the figures, depending on what commands you give. The way this is done here is to let the compiler determine what the best position of the figure is. This means that you do not have direct control on where it ends up. Read more on this online.
+
+
+\section{Lists and tables}
+You can make lists like this 
+\begin{enumerate}
+\item item 1
+\item item 2
+\begin{enumerate}
+\item subitem
+\end{enumerate}
+\end{enumerate}
+or like this 
+\begin{itemize}
+\item item 1
+\item item 2
+\begin{itemize}
+\item sub-item
+\end{itemize}
+\end{itemize}
+Tables are bit more complicated, and there are a number of packages to be used. An example could look like this
+\begin{table}[h]
+\caption{A Table}\label{tab:table}
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+\hline
+ 		& Col1 	& Col2 	& Col3 	\\ 
+\hline
+Row1	&  	1,1	&  	1,2	&  1,3		\\ 
+\hline
+Row2&       2,1	&  2,2		&  2,3		\\ 
+\hline
+Row3	&  	3,1	&  3,2		&  3,3		\\ 
+\hline
+
+\end{tabular}
+\end{center}
+\end{table}
+and be referred to like this Table \ref{tab:table}
+
+
+\section{Other}
+If you like to input Matlab or Python snippets, you could do it like this
+
+\textbf{Matlab}\vspace{-5mm} % negative vertical space
+\begin{lstlisting}
+r = 3.7;
+x = 0.5;
+for i = 1:10
+	x = r*x*(1 - x)
+end
+x = syms('x',[3,1],'real');
+f = someComplicatedFunction(x);
+s = 'str' % see, it also colors the comments and strings correctly
+\end{lstlisting}
+
+\textbf{Python}\vspace{-5mm} % negative vertical space
+\begin{lstlisting}[language=Python]
+import sympy as sp
+r = 3.7
+x = 0.5
+for i in range(10):
+	x = r*x*(1 - x)
+x = sp.symbols('x0:3', real=True)
+f = someComplicatedFunction(x)
+s = 'str' # see, it also colors the comments and strings correctly
+\end{lstlisting}
+
+If you want to put in pseudo-code, you can do it like this
+\begin{algorithm}
+\caption{Newton}\label{alg:int}
+\begin{algorithmic}[1]
+\Procedure{Rootfinding}{$\epsilon$}
+\State $x=\textsc{InitialGuess}()$
+\While{$||f(x)|| < \epsilon $}
+\State $[f(x), \nabla_x f(x) ] = \textsc{EvaluateFunction}(x)$
+\State $\Delta x = \left(\nabla_x f(x) \right)^{-1}f(x)$
+\State $\alpha = \textsc{GetStep}()$
+\State $x = x-\alpha \Delta x$
+\EndWhile
+\Return{$x$}
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+and refer to it like this: Algorithm~\ref{alg:int}.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
