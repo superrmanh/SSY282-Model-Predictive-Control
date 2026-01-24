@@ -28,8 +28,8 @@ l = 0.5    # [m] distance from the pole-cart attachment to the pole's center of 
 Nonlinear System : dot x(t) = f(x(t), u(t))
                        x(t) = [s(t), dot s(t), theta(t), dot theta(t)].T
                        u(t) = F(t)
-Using Some Rules:       sin(theta) = theta 
-                    cos(theta) = 1
+Using Some Rules:       sin(theta) = theta = x3
+                    cos(theta) = 1  
 
 
 First Approximate the nonlinear system, and linearize about x=0, u=0
@@ -37,6 +37,7 @@ First Approximate the nonlinear system, and linearize about x=0, u=0
 Continuous System: dot x(t) = A_c x(t) + B_c u(t) 
                        y(t) = C_c x(t) 
 Output Vector is: y(t) = [s(t) theta(t)].T
+
 """
 # Equation We Were Given: 
 # ddot_s(t) = (4/3( F(t) - ml dot_theta(t)^2 sin theta(t) + mgsin theta(t) cos theta(t))) /( 4/3M - mcos^2 theta(t))
@@ -46,7 +47,7 @@ Output Vector is: y(t) = [s(t) theta(t)].T
 #from math import cos, sin
 #from numpy import cos, sin
 import sympy as sp
-from sympy import cos, sin, simplify
+from sympy import simplify, cos, sin
 x1, x2, x3, x4, u = sp.symbols('x1 x2 x3 x4 u')
 
 D = 4/3*M - m*cos(x3)**2
@@ -59,35 +60,64 @@ dot_x4 = (M*g*sin(x3) + cos(x3)*(u-m*l*x4**2 *sin(x3))) / (l*D)
 x = sp.Matrix([x1,x2,x3,x4])
 f = sp.Matrix([dot_x1,dot_x2,dot_x3,dot_x4])
 
-Ac = (f.jacobian(x))
-Bc = (f.jacobian(sp.Matrix([u])))
-
 
 """
 Now Apply Linearization around x = 0 and u = 0 
 """
-eq = {x1:0, x2:0, x3:0, x4:0}
-Ac0 = Ac.subs(eq)
-Bc0 = Bc.subs(eq)
+Approximate = {cos(x3):1, sin(x3):x3}
+f_approx =  f.subs(Approximate)
 
-Ac_sol = 'Matrix A for  time model'
-Bc_sol = 'Matrix B for continuous time model'
-Cc_sol = 'Matrix C for continuous time model'
+Ac = f_approx.jacobian(x)
+Bc = f_approx.jacobian(sp.Matrix([u]))
 
+Linearize = {x1:0, x2:0, x3:0, x4:0, u:0}
 
+Ac0 = np.array(Ac.subs(Linearize), dtype=float)
+Bc0 = np.array(Bc.subs(Linearize), dtype=float)
 
+C = np.array([
+    [1,0,0,0],
+    [0,0,1,0]
+])
+
+A_eigenvalue = np.linalg.eigvals(Ac0)
+
+print(A_eigenvalue)
+Ac_sol = Ac0
+Bc_sol = Bc0
+Cc_sol = C
 
 print('Continuous-time system')
 print('Ac = \n',Ac_sol,'\n\n Bc = \n', Bc_sol,'\n\n Cc = \n', Cc_sol) 
 
-"""
+
 # b) Discretizing the system 
 #===========================
 
 print('Question 1b)')
+
+"""
+Sampling Interval : h=0.1s
+Find Matrices : A, B, C <- We can use Lemma 3 page 25
+"""
+h=0.1
+
+Continuous_sub_Matrix = np.hstack((Ac0,Bc0))
+#print(Continuous_sub_Matrix.shape)
+Vector = np.zeros((1,5))
+Continuous_Matrix = np.vstack((Continuous_sub_Matrix,Vector))
+Discrete_Matrix = expm(Continuous_Matrix)
+
+#print(Discrete_Matrix)
+#print(Discrete_Matrix.shape)
+#print("A:", Ac0.shape, "B",Bc0.shape)
+
+A = Discrete_Matrix[0:4,0:4]
+B = Discrete_Matrix[0:4,4:5]
+
 # write your code here 
-A_1_sol = 'Matrix for the linearized, discrete-time system'
-B_1_sol = 'Matrix for the linearized, discrete-time system' 
+A_1_sol = A
+B_1_sol = B
 C_1_sol = 'Matrix for the linearized, discrete-time system' 
 eig_A_1_sol = 'Eigenvalues of discrete-time system'
 
@@ -197,4 +227,3 @@ print('\nQuestion 5: Set-point tracking\n')
 # simulate the plant
 
 # Plot the state feedback response
-"""
