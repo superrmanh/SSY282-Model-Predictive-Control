@@ -80,9 +80,9 @@ C = np.array([
     [0,0,1,0]
 ])
 
-A_eigenvalue = np.linalg.eigvals(Ac0)
+A_c0_eigenvalue = np.linalg.eigvals(Ac0)
 
-print(A_eigenvalue)
+print(A_c0_eigenvalue)
 Ac_sol = Ac0
 Bc_sol = Bc0
 Cc_sol = C
@@ -106,7 +106,7 @@ Continuous_sub_Matrix = np.hstack((Ac0,Bc0))
 #print(Continuous_sub_Matrix.shape)
 Vector = np.zeros((1,5))
 Continuous_Matrix = np.vstack((Continuous_sub_Matrix,Vector))
-Discrete_Matrix = expm(Continuous_Matrix)
+Discrete_Matrix = expm(Continuous_Matrix*h)
 
 #print(Discrete_Matrix)
 #print(Discrete_Matrix.shape)
@@ -114,12 +114,13 @@ Discrete_Matrix = expm(Continuous_Matrix)
 
 A = Discrete_Matrix[0:4,0:4]
 B = Discrete_Matrix[0:4,4:5]
+A_eigenvalue = np.linalg.eigvals(A)
 
 # write your code here 
 A_1_sol = A
 B_1_sol = B
-C_1_sol = 'Matrix for the linearized, discrete-time system' 
-eig_A_1_sol = 'Eigenvalues of discrete-time system'
+C_1_sol = Cc_sol 
+eig_A_1_sol = A_eigenvalue
 
 print('Discrete-time system:\n')
 print('A: \n',A_1_sol) 
@@ -133,14 +134,25 @@ print(eig_A_1_sol)
 
 # c) Discrete model with delay
 #=============================
-
+"""
+This case we have a delay tau = 0.8h
+where h is the sample interval used previously
+We need to find Aa, Ba, Ca, and Eig
+"""
 print('Question 1c)')
 # write your code here 
 
-Aa_sol = 'Augmented matrix for the discrete-time system with delay'
-Ba_sol = 'Augmented matrix for the discrete-time system with delay'
-Ca_sol = 'Augmented matrix for the discrete-time system with delay'
-eig_Aa_sol= 'Eigenvalues of augmented discrete-time system with delay'
+tau  = 0.8*h
+
+Delay_Matrix = expm(Continuous_Matrix*tau)
+Aa = Delay_Matrix[0:4,0:4]
+Ba = Delay_Matrix[0:4,4:5]
+Aa_eigenvalue = np.linalg.eigvals(Aa)
+
+Aa_sol = Aa
+Ba_sol = Ba
+Ca_sol = C
+eig_Aa_sol= Aa_eigenvalue
 
 print('Augmented discrete-time system with delay; Aa, Ba, Ca:')
 print('\n Aa = \n',Aa_sol) 
@@ -181,6 +193,7 @@ for k in range(Nsim):
     Xsim[k] = cp.x # save state variables
 plt.show(block=True) # keep showing the last frame
 
+
 # Question 3 : Linear-quadratic control
 #=====================================================================
 print('Question 3: Linear-quadratic control')
@@ -200,13 +213,15 @@ R = 1
 
 # feedback gain, hint: use cl.dlqr()
 K = 'The optimal LQR gain'
-
 # Simulate the cart-pole plant 
 
+x_0 = (np.array([-0.5, 0, pi/12, 0])).T
 
 # Plot the state feedback response
 
 
+
+"""
 # Question 4 : Steady-state targets
 #==================================================
 print('\nQuestion 4: Steady-state targets\n')
@@ -227,3 +242,4 @@ print('\nQuestion 5: Set-point tracking\n')
 # simulate the plant
 
 # Plot the state feedback response
+"""
