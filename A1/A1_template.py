@@ -160,7 +160,7 @@ print('\n Ba = \n',Ba_sol)
 print('\n Ca = \n',Ca_sol)
 print('\nEigenvalues of augmented discrete-time system with delay:\n')
 print(eig_Aa_sol)
-
+"""
 
 # Question 2: Getting familiar with the cart-pole simulator
 #==========================================================
@@ -212,29 +212,114 @@ Q = np.eye(4)
 R = 1
 
 # feedback gain, hint: use cl.dlqr()
-K = 'The optimal LQR gain'
+K = -cl.dlqr(A,B,Q,R)[0]
 # Simulate the cart-pole plant 
 
-x_0 = (np.array([-0.5, 0, pi/12, 0])).T
+x_0 = (np.array([-0.5, 0, np.pi/12, 0])).T
+
+"""
+
+
+#Copied From part 2
+"""
+
+T = 10
+Nsim = int(T / h)
+t = np.arange(0,Nsim,h)
 
 # Plot the state feedback response
 
+cp = CartPole(animate = True)    # instantiate the cart-pole simulator
+cp.pauseTime= 0.01             # pause between plot frames
+fig = cp.set_animation_figure()   # creates a figure (if you dont run this line, the simulator will Not produce a plot)
+cp.x[:] = x_0 
 
+# ----- simulation loop ----- 
+
+
+Xsim = np.ones((Nsim,4))*np.inf
+Xsim[0,:] = x_0
+for k in range(Nsim):
+    u = (K@cp.x).item()
+    cp.simulate(F=u, dt=h, disturbance=0.0,title=f'Time step {k}/{Nsim}') # simulate one step
+    Xsim[k] = cp.x # save state variables
+plt.show(block=True) # keep showing the last frame
 
 """
 # Question 4 : Steady-state targets
 #==================================================
 print('\nQuestion 4: Steady-state targets\n')
 
+"""
+Here we investigate different setpoints for the output, the cart position and pole angle.
+
+LQR is designed to steer the system to the origin.
+
+The goal is perform a variable changes:
+delta x = x-xs
+delta u = u-us
+Where xs and us are steady state targets. So that new delta values steer the target to the origin
+
+Here we are to calculate state and input steady state targets, correspoing to output set point, for different cases.
+Can ysp be tracked
+"""
 # case 1
+
+A_matrix_case_1 = np.vstack([np.hstack([np.eye(4)-A, -B]), np.hstack([C, np.zeros((2,1))])])
+print('Shape of A Matrix - Case 1:',A_matrix_case_1.shape) # 6 x 5. M>N. Thus Overdetermined System
+
+#hint cond
+condition_case_1 = np.linalg.cond(A_matrix_case_1)
+print('Condition of A Matrix - Case 1',condition_case_1)
+
+
+ysp_1 = np.array([[-1, np.pi/12]]).T
+B_matrix_case_1 = np.vstack([np.zeros((4,1)),ysp_1])
+
+x_case1 = np.linalg.lstsq(A_matrix_case_1,B_matrix_case_1)
+print(x_case1)
+
 ws_1_sol = 'Case 1 steady-state targets [xs; us], if any'
 
+
+
 # case 2
+
+A_matrix_case_2 = np.vstack([np.hstack([np.eye(4)-A, -B]), np.hstack([C, np.zeros((2,1))])])
+print('Shape of A Matrix - Case 2:',A_matrix_case_2.shape) # 6 x 5. M>N. Thus Overdetermined System
+
+#hint cond
+condition_case_2 = np.linalg.cond(A_matrix_case_2)
+print('Condition of A Matrix - Case 2',condition_case_2)
+
+
+ysp_2 = np.array([[np.pi/12]]).T
+B_matrix_case_2 = np.vstack([np.zeros((5,1)),ysp_2])
+
+x_case2 = np.linalg.lstsq(A_matrix_case_2,B_matrix_case_2)
+print(x_case2)
+
 ws_2_sol = 'Case 2 steady-state targets [xs; us], if any'
 
+
 # case 3
+
+A_matrix_case_3 = np.vstack([np.hstack([np.eye(4)-A, -B]), np.hstack([C, np.zeros((2,1))])])
+print('Shape of A Matrix - Case 3:',A_matrix_case_3.shape) # 6 x 5. M>N. Thus Overdetermined System
+
+#hint cond
+condition_case_3 = np.linalg.cond(A_matrix_case_3)
+print('Condition of A Matrix - Case 3',condition_case_3)
+
+
+ysp_3 = np.array([[-1]]).T
+B_matrix_case_3 = np.vstack([np.zeros((5,1)),ysp_3])
+
+x_case3 = np.linalg.lstsq(A_matrix_case_3,B_matrix_case_3)
+print(x_case3)
 ws_3_sol = 'Case 3 steady-state targets [xs; us], if any'
 
+"""
 # Question 5: Set-point tracking
 #==================================================
 print('\nQuestion 5: Set-point tracking\n')
