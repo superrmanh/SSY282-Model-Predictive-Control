@@ -226,6 +226,7 @@ R = 1
 
 # feedback gain, hint: use cl.dlqr()
 K = -cl.dlqr(A,B,Q,R)[0]
+print("K is:",K)
 # Simulate the cart-pole plant 
 
 x_0 = (np.array([-0.5, 0, np.pi/12, 0])).T
