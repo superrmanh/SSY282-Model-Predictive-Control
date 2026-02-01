@@ -148,23 +148,22 @@ Delay_Matrix = expm(Continuous_Matrix*tau)
 Atau = Delay_Matrix[0:4,0:4]
 Btau = Delay_Matrix[0:4,4:5]
 
-Discrete_Matrix_h = expm(Continuous_Matrix*h)
+Discrete_Matrix_h = expm(Continuous_Matrix*(h-tau))
 Ah = Discrete_Matrix_h[0:4,0:4]
 Bh = Discrete_Matrix_h[0:4,4:5]
 
 
-Aa_eigenvalue = np.linalg.eigvals(Atau)
-
 Aa_sol = np.vstack([
-    np.hstack([Ah, Btau]),          
+    np.hstack([Ah @ Atau, Ah @ Btau]),          
     np.hstack([np.zeros((1,4)), [[0]]]) # Bottom: u(k-1) becomes "old" input
 ])
 
 Ba_sol = np.vstack([
-    Bh - Btau, 
+    Bh, 
     [[1]]        
 ])
 Ca_sol = np.hstack([C, np.zeros((2, 1))])
+Aa_eigenvalue = np.linalg.eigvals(Aa_sol)
 eig_Aa_sol= Aa_eigenvalue
 
 print('Augmented discrete-time system with delay; Aa, Ba, Ca:')
