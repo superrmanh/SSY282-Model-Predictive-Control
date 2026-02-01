@@ -145,13 +145,26 @@ print('Question 1c)')
 tau  = 0.8*h
 
 Delay_Matrix = expm(Continuous_Matrix*tau)
-Aa = Delay_Matrix[0:4,0:4]
-Ba = Delay_Matrix[0:4,4:5]
-Aa_eigenvalue = np.linalg.eigvals(Aa)
+Atau = Delay_Matrix[0:4,0:4]
+Btau = Delay_Matrix[0:4,4:5]
 
-Aa_sol = Aa
-Ba_sol = Ba
-Ca_sol = C
+Discrete_Matrix_h = expm(Continuous_Matrix*h)
+Ah = Discrete_Matrix_h[0:4,0:4]
+Bh = Discrete_Matrix_h[0:4,4:5]
+
+
+Aa_eigenvalue = np.linalg.eigvals(Atau)
+
+Aa_sol = np.vstack([
+    np.hstack([Ah, Btau]),          
+    np.hstack([np.zeros((1,4)), [[0]]]) # Bottom: u(k-1) becomes "old" input
+])
+
+Ba_sol = np.vstack([
+    Bh - Btau, 
+    [[1]]        
+])
+Ca_sol = np.hstack([C, np.zeros((2, 1))])
 eig_Aa_sol= Aa_eigenvalue
 
 print('Augmented discrete-time system with delay; Aa, Ba, Ca:')
@@ -160,7 +173,7 @@ print('\n Ba = \n',Ba_sol)
 print('\n Ca = \n',Ca_sol)
 print('\nEigenvalues of augmented discrete-time system with delay:\n')
 print(eig_Aa_sol)
-"""
+
 
 # Question 2: Getting familiar with the cart-pole simulator
 #==========================================================
@@ -235,22 +248,47 @@ fig = cp.set_animation_figure()   # creates a figure (if you dont run this line,
 cp.x[:] = x_0 
 
 # ----- simulation loop ----- 
-
-
 Xsim = np.ones((Nsim,4))*np.inf
+Usim = np.zeros(Nsim)
 Xsim[0,:] = x_0
 for k in range(Nsim):
     u = (K@cp.x).item()
     cp.simulate(F=u, dt=h, disturbance=0.0,title=f'Time step {k}/{Nsim}') # simulate one step
     Xsim[k] = cp.x # save state variables
+    Usim[k] = u # Similar to the line above, where i save the control. :D
 plt.show(block=True) # keep showing the last frame
+
+
+"""
+Here I am creating a plot/figure states and control trajectory
+"""
+
+fig2, axes = plt.subplots(5, 1, sharex=True, figsize=(6, 8))
+t_plot = np.arange(Nsim) * h   # time vector for plotting
+
+labels = ['$s$ (m)', r'$\dot{s}$ (m/s)', r'$\theta$ (rad)', r'$\dot{\theta}$ (rad/s)']
+for i in range(4):
+    axes[i].plot(t_plot, Xsim[:, i])
+    axes[i].set_ylabel(labels[i])
+    axes[i].grid(True)
+axes[3].set_xlabel('Time (s)')
+
+# Control
+axes[4].plot(t_plot, Usim)
+axes[4].set_ylabel('$u$ (N)')
+axes[4].set_xlabel('Time (s)')
+axes[4].grid(True)
+
+plt.tight_layout()
+plt.savefig('A1_Q3_trajectories.pdf', bbox_inches='tight')   # or .png for report
+plt.show()
 
 """
 # Question 4 : Steady-state targets
 #==================================================
 print('\nQuestion 4: Steady-state targets\n')
 
-"""
+
 Here we investigate different setpoints for the output, the cart position and pole angle.
 
 LQR is designed to steer the system to the origin.
@@ -277,54 +315,130 @@ ysp_1 = np.array([[-1, np.pi/12]]).T
 B_matrix_case_1 = np.vstack([np.zeros((4,1)),ysp_1])
 
 x_case1 = np.linalg.lstsq(A_matrix_case_1,B_matrix_case_1)
-print(x_case1)
+ws_case1 = x_case1[0]
+res_1 = x_case1[1]
 
-ws_1_sol = 'Case 1 steady-state targets [xs; us], if any'
-
-
-
+ws_1_sol = ws_case1
+print('For case 1, since the shape is 6x5 Overdetermined system: We check residuals')
+print("--------------")
+print("Residuals needs to be > 1e-10")
+print("Res is: ",res_1)
+print("Thes Steady-State Values:", ws_1_sol)
 # case 2
-
-A_matrix_case_2 = np.vstack([np.hstack([np.eye(4)-A, -B]), np.hstack([C, np.zeros((2,1))])])
-print('Shape of A Matrix - Case 2:',A_matrix_case_2.shape) # 6 x 5. M>N. Thus Overdetermined System
+C_case_2 = C[1:2,0:4]
+A_matrix_case_2 = np.vstack([np.hstack([np.eye(4)-A, -B]), np.hstack([C_case_2, np.zeros((1,1))])])
+print('Shape of A Matrix - Case 2:',A_matrix_case_2.shape)  # 5x5, Here we find exact solutions
 
 #hint cond
 condition_case_2 = np.linalg.cond(A_matrix_case_2)
 print('Condition of A Matrix - Case 2',condition_case_2)
 
-
 ysp_2 = np.array([[np.pi/12]]).T
-B_matrix_case_2 = np.vstack([np.zeros((5,1)),ysp_2])
+B_matrix_case_2 = np.vstack([np.zeros((4,1)),ysp_2])
 
 x_case2 = np.linalg.lstsq(A_matrix_case_2,B_matrix_case_2)
-print(x_case2)
 
-ws_2_sol = 'Case 2 steady-state targets [xs; us], if any'
+ws_case2 = x_case2[0]
+rank_2 = x_case2[2]
 
+ws_2_sol = ws_case2
+
+print('For case 2, since the shape is 5x5 system: with inf solutions, we check rank')
+print("--------------")
+print("rank needs to be <5")
+print("rank_2 is: ",rank_2)
+print("Thes Steady-State Values:", ws_2_sol)
 
 # case 3
-
-A_matrix_case_3 = np.vstack([np.hstack([np.eye(4)-A, -B]), np.hstack([C, np.zeros((2,1))])])
-print('Shape of A Matrix - Case 3:',A_matrix_case_3.shape) # 6 x 5. M>N. Thus Overdetermined System
+C_case_3 = C[0:1,0:4]
+A_matrix_case_3 = np.vstack([np.hstack([np.eye(4)-A, -B]), np.hstack([C_case_3, np.zeros((1,1))])])
+print('Shape of A Matrix - Case 3:',A_matrix_case_3.shape)  # 5x5, Here we find exact solutions
 
 #hint cond
 condition_case_3 = np.linalg.cond(A_matrix_case_3)
 print('Condition of A Matrix - Case 3',condition_case_3)
 
-
 ysp_3 = np.array([[-1]]).T
-B_matrix_case_3 = np.vstack([np.zeros((5,1)),ysp_3])
+B_matrix_case_3 = np.vstack([np.zeros((4,1)),ysp_3])
 
 x_case3 = np.linalg.lstsq(A_matrix_case_3,B_matrix_case_3)
-print(x_case3)
-ws_3_sol = 'Case 3 steady-state targets [xs; us], if any'
 
-"""
+ws_case3 = x_case3[0]
+rank_3 = x_case3[2]
+
+ws_3_sol = ws_case3
+
+print('For case 3, since the shape is 5x5 system: with a solutions, we check rank')
+print("--------------")
+print("rank needs to be =5")
+print("rank_3 is: ",rank_3)
+print("Thes Steady-State Values:", ws_3_sol)
+
 # Question 5: Set-point tracking
 #==================================================
 print('\nQuestion 5: Set-point tracking\n')
 
+# Use the steady-state targets from Case 3
+xs = ws_case3[:4].reshape(-1, 1)  # Target state
+us = ws_case3[4:].item()          # Target input
+
+print(f'Setpoint: s = -1 m')
+print(f'Steady-state targets:')
+print(f'  xs = [{xs[0,0]:.4f}, {xs[1,0]:.4f}, {xs[2,0]:.4f}, {xs[3,0]:.4f}]^T')
+print(f'  us = {us:.4f}')
+
 # simulate the plant
+T = 10
+Nsim = int(T / h)
+t_plot = np.arange(Nsim) * h
+
+cp_q5 = CartPole(animate=True)
+cp_q5.pauseTime = 0.01
+fig_q5 = cp_q5.set_animation_figure()
+
+x_0 = np.array([-0.5, 0, np.pi/12, 0])
+cp_q5.x[:] = x_0
+
+Xsim_q5 = np.ones((Nsim, 4)) * np.inf
+Usim_q5 = np.zeros(Nsim)
+Xsim_q5[0, :] = x_0
+
+for k in range(Nsim):
+    delta_x = (cp_q5.x - xs.flatten()).reshape(-1, 1)
+    delta_u = (K @ delta_x).item()
+    u = us + delta_u
+    
+    cp_q5.simulate(F=u, dt=h, disturbance=0.0, 
+                   title=f'Q5: Setpoint Tracking - Step {k}/{Nsim}')
+    
+    Xsim_q5[k] = cp_q5.x
+    Usim_q5[k] = u
+
+plt.show(block=True)
 
 # Plot the state feedback response
-"""
+
+fig_q5_plots, axes = plt.subplots(5, 1, sharex=True, figsize=(8, 10))
+
+labels = ['$s$ (m)', r'$\dot{s}$ (m/s)', r'$\theta$ (rad)', r'$\dot{\theta}$ (rad/s)']
+for i in range(4):
+    axes[i].plot(t_plot, Xsim_q5[:, i], label='Actual', linewidth=1.5)
+    axes[i].axhline(xs[i].item(), color='r', linestyle='--', 
+                    label=f'Target = {xs[i].item():.3f}', linewidth=1.5)
+    axes[i].set_ylabel(labels[i])
+    axes[i].legend(loc='best')
+    axes[i].grid(True, alpha=0.3)
+
+# Control
+axes[4].plot(t_plot, Usim_q5, label='Actual', linewidth=1.5)
+axes[4].axhline(us, color='r', linestyle='--', 
+                label=f'Target = {us:.3f}', linewidth=1.5)
+axes[4].set_ylabel('$u$ (N)')
+axes[4].set_xlabel('Time (s)')
+axes[4].legend(loc='best')
+axes[4].grid(True, alpha=0.3)
+
+plt.suptitle('Question 5: Setpoint Tracking to s = -1 m', fontsize=12, fontweight='bold')
+plt.tight_layout()
+plt.savefig('A1_Q5_setpoint_tracking.pdf', bbox_inches='tight')
+plt.show()
